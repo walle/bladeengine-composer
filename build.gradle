@@ -1,0 +1,35 @@
+apply from: 'common.gradle'
+
+dependencies {
+  compile "com.badlogicgames.gdx:gdx:$libgdxVersion"
+  compile "org.bladecoder.bladeengine:bladeengine:1.0.0"
+  compile "com.badlogicgames.gdx:gdx-tools:$libgdxVersion"
+  compile "com.badlogicgames.gdx:gdx-freetype-platform:$libgdxVersion:natives-desktop"
+  compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$libgdxVersion"
+  compile "com.badlogicgames.gdx:gdx-platform:$libgdxVersion:natives-desktop"
+  testCompile 'junit:junit:+'
+}
+
+project.ext.mainClassName = "org.bladecoder.bladeengine.composer.Main"
+project.ext.assetsDir = new File("assets");
+
+task run(dependsOn: classes, type: JavaExec) {
+  main = project.mainClassName
+  classpath = sourceSets.main.runtimeClasspath
+  standardInput = System.in
+  workingDir = project.assetsDir
+  ignoreExitValue = true
+}
+
+task dist(type: Jar) {
+  from files(sourceSets.main.output.classesDir)
+  from files(sourceSets.main.output.resourcesDir)
+  from {configurations.compile.collect {zipTree(it)}}
+  from files(project.assetsDir);
+
+  manifest {
+    attributes 'Main-Class': project.mainClassName
+  }
+}
+
+dist.dependsOn classes
